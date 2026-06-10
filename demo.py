@@ -29,6 +29,7 @@ def generate_dataset(size: int, unique_pool_size: int) -> list[str]:
 def deduplicate_with_bloom(items: list[str], bloom: BloomFilter) -> tuple[list[str], int]:
     """Keep first occurrence of each item; count false positives along the way."""
     unique_items: list[str] = []
+    # Tracks accepted uniques so we can count false positives, not part of the filter API.
     seen: set[str] = set()
     false_positives = 0
 
@@ -56,14 +57,14 @@ def main() -> None:
 
     print("Bloom Filter Deduplication Demo")
     print("=" * 40)
-    print(f"Total items:              {len(dataset):,}")
-    print(f"Actual unique items:      {len(actual_unique):,}")
-    print(f"Bloom filter unique count:{len(bloom_unique):,}")
-    print(f"False positives:          {false_positives:,}")
+    print(f"Total items:                 {len(dataset):,}")
+    print(f"Actual unique items:         {len(actual_unique):,}")
+    print(f"Bloom filter unique count:   {len(bloom_unique):,}")
+    print(f"False positives:             {false_positives:,}")
     print()
-    print(f"Filter size (m):          {bloom.size:,} bits")
-    print(f"Hash functions (k):       {bloom.num_hashes}")
-    print(f"Memory (approx):          {bloom.memory_bytes:,} bytes")
+    print(f"Filter size (m):             {bloom.size:,} bits")
+    print(f"Hash functions (k):          {bloom.num_hashes}")
+    print(f"Memory (approx):             {bloom.memory_bytes:,} bytes")
 
     # Sanity check: every bloom-accepted item should be in the actual unique set.
     extras = [item for item in bloom_unique if item not in actual_unique_set]

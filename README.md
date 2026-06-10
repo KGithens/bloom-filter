@@ -1,6 +1,6 @@
 # Bloom Filter Demo
 
-A small, interview-friendly Bloom filter implementation in Python with a deduplication demo.
+A Bloom filter implementation in Python with a deduplication demo.
 
 ## What is a Bloom Filter?
 
@@ -43,15 +43,22 @@ cd bloom-filter
 python3 demo.py
 ```
 
-The demo generates ~10,000 random strings (sampled from ~2,000 unique values), deduplicates with the Bloom filter, and compares against a Python `set` to report totals, unique counts, and false positives.
+The demo generates ~10,000 random strings (sampled from ~2,000 unique values), deduplicates with the Bloom filter, and compares against a Python `set` to report totals, unique counts, and false positives. The auxiliary `seen` set in `demo.py` is only for measuring false positives during the walkthrough.
 
-## Possible Improvements
+## Run Tests
 
-With more time, you could:
+```bash
+python3 -m unittest test_bloom_filter.py -v
+```
 
-- Compute optimal `m` and `k` from expected item count and target false-positive rate
-- Add a `union` operation or serialization (save/load bit array)
-- Swap SHA-256 for faster non-cryptographic hashes (e.g. MurmurHash) in production
-- Track and report estimated false-positive probability
-- Support deletion with a counting Bloom filter
-- Add unit tests for edge cases and false-positive behavior
+## CI
+
+Pull requests and pushes to `main` run the same test suite in GitHub Actions (Python 3.11–3.13).
+
+## Future work
+
+- Derive `m` and `k` from expected item count and target false-positive rate
+- Use double hashing to cut per-item hash cost from O(k) to O(1)
+- Add union/serialization or a counting variant for deletion
+- Swap SHA-256 for a faster non-cryptographic hash in production
+- Statistical false-positive rate checks in tests
