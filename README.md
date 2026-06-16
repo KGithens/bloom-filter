@@ -1,6 +1,6 @@
 # Bloom Filter Demo
 
-A Bloom filter implementation in Python with deduplication and sharded-cache demos.
+A Bloom filter implementation in Python with deduplication, sharded-cache, and profiling demos.
 
 ## What is a Bloom Filter?
 
@@ -67,10 +67,10 @@ Pull requests and pushes to `main` run the same test suite in GitHub Actions (Py
 
 ```bash
 python3 profile_bloom_filter.py
-python3 profile_bloom_filter.py --profile   # cProfile top functions
+python3 profile_bloom_filter.py --profile   # cProfile: where time goes (expect sha256 at the top)
 ```
 
-Uses `timeit` to report median and best throughput for `add`, `might_contain` on hits, and `might_contain` on misses. Benchmarks are for local use only (not run in CI).
+Benchmarks `add`, `might_contain` on hits, and `might_contain` on misses with stdlib `timeit` (median and best µs/op and ops/s). Use `--profile` to confirm hashing — not bit operations — dominates before swapping hash algorithms. Timings vary by machine, so benchmarks are local only; CI smoke-tests the script with `--quick` but does not assert performance numbers.
 
 ## Future work
 
