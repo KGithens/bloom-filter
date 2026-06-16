@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import unittest
+from unittest.mock import MagicMock, patch
 
 from bloom_filter import BloomFilter
 
@@ -52,6 +54,30 @@ class BloomFilterTests(unittest.TestCase):
         for index in bloom._hash_indices("bounds-check"):
             self.assertGreaterEqual(index, 0)
             self.assertLess(index, bloom.size)
+
+
+class DoubleHashingTests(unittest.TestCase):
+    def test_indices_are_distinct(self) -> None:
+        bloom = BloomFilter(size=10_000, num_hashes=7)
+        indices = bloom._hash_indices("distinct-check")
+        self.assertEqual(len(indices), len(set(indices)))
+
+    def test_h2_zero_uses_nonzero_step(self) -> None:
+        bloom = BloomFilter(size=1_000, num_hashes=5)
+        digest = b"\x01" * 8 + b"\x00" * 8 + b"\x00" * 16
+        mock_hash = MagicMock()
+        mock_hash.digest.return_value = digest
+
+        with patch.object(hashlib, "sha256", return_value=mock_hash):
+            indices = bloom._hash_indices("h2-zero")
+
+        self.assertEqual(len(indices), len(set(indices)))
+
+    def test_single_digest_per_lookup(self) -> None:
+        bloom = BloomFilter(size=1_000, num_hashes=7)
+        with patch.object(hashlib, "sha256", wraps=hashlib.sha256) as sha256_mock:
+            bloom._hash_indices("single-digest")
+        self.assertEqual(sha256_mock.call_count, 1)
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ For `n` items, a common rule of thumb is `m ≈ 10n` bits and `k ≈ 7` hash fun
 ## How This Implementation Works
 
 1. **`BloomFilter(size, num_hashes)`** — creates a bit array of `size` bits and uses `num_hashes` hash functions.
-2. **Hashing** — each hash function salts the input with an index (`"0:item"`, `"1:item"`, …) and runs SHA-256; the first 8 bytes map to a bit index via modulo.
+2. **Hashing** — one SHA-256 digest yields two base hashes (`h1`, `h2` from the first 16 bytes). All `k` indices use double hashing: `h_i = (h1 + i × h2) mod m`, so hash work is O(1) per item instead of O(k).
 3. **`add(item)`** — sets the `k` bit positions for the item.
 4. **`might_contain(item)`** — returns `True` only if all `k` bits are set.
 
@@ -58,7 +58,6 @@ Pull requests and pushes to `main` run the same test suite in GitHub Actions (Py
 ## Future work
 
 - Derive `m` and `k` from expected item count and target false-positive rate
-- Use double hashing to cut per-item hash cost from O(k) to O(1)
 - Add union/serialization or a counting variant for deletion
 - Swap SHA-256 for a faster non-cryptographic hash in production
 - Statistical false-positive rate checks in tests

@@ -1,4 +1,4 @@
-"""A simple Bloom filter implementation using SHA-256 and index-based salting."""
+"""A Bloom filter implementation using SHA-256 and double hashing."""
 
 from __future__ import annotations
 
@@ -59,14 +59,14 @@ class BloomFilter:
         return all(self._get_bit(index) for index in self._hash_indices(item))
 
     def _hash_indices(self, item: str) -> list[int]:
-        """Compute k bit positions for item using salted SHA-256 hashes."""
-        indices: list[int] = []
-        for i in range(self._num_hashes):
-            digest = hashlib.sha256(f"{i}:{item}".encode()).digest()
-            # Use first 8 bytes as an unsigned integer, then map into [0, m).
-            value = int.from_bytes(digest[:8], byteorder="big")
-            indices.append(value % self._size)
-        return indices
+        """Compute k bit positions via double hashing: one SHA-256, then h_i = h1 + i*h2."""
+        digest = hashlib.sha256(item.encode()).digest()
+        h1 = int.from_bytes(digest[:8], byteorder="big")
+        h2 = int.from_bytes(digest[8:16], byteorder="big")
+        if h2 == 0:
+            h2 = 1
+
+        return [(h1 + i * h2) % self._size for i in range(self._num_hashes)]
 
     def _set_bit(self, index: int) -> None:
         byte_index, bit_offset = divmod(index, 8)
