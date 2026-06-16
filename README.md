@@ -1,6 +1,6 @@
 # Bloom Filter Demo
 
-A Bloom filter implementation in Python with a deduplication demo.
+A Bloom filter implementation in Python with deduplication and sharded-cache demos.
 
 ## What is a Bloom Filter?
 
@@ -35,7 +35,7 @@ For `n` items, a common rule of thumb is `m ≈ 10n` bits and `k ≈ 7` hash fun
 3. **`add(item)`** — sets the `k` bit positions for the item.
 4. **`might_contain(item)`** — returns `True` only if all `k` bits are set.
 
-## Run the Demo
+## Deduplication demo
 
 ```bash
 git clone https://github.com/KGithens/bloom-filter.git
@@ -43,7 +43,15 @@ cd bloom-filter
 python3 demo.py
 ```
 
-The demo generates ~10,000 random strings (sampled from ~2,000 unique values), deduplicates with the Bloom filter, and compares against a Python `set` to report totals, unique counts, and false positives. The auxiliary `seen` set in `demo.py` is only for measuring false positives during the walkthrough.
+Generates ~10,000 random strings (sampled from ~2,000 unique values), deduplicates with the Bloom filter, and compares against a Python `set` to report totals, unique counts, and false positives. The auxiliary `seen` set in `demo.py` is only for measuring false positives during the walkthrough.
+
+## Sharded cache demo
+
+```bash
+python3 redis_bloom_demo.py
+```
+
+Simulates a distributed image cache split across Redis shards, with one Bloom filter per shard. On a cache miss, the Bloom filter short-circuits the lookup and skips the shard entirely; on a possible hit, the demo falls through to the simulated Redis `GET`. Reports how many round-trips were avoided and illustrates stale positives after a Redis-only eviction (standard Bloom filters cannot delete).
 
 ## Run Tests
 
