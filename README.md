@@ -63,6 +63,15 @@ python3 -m unittest test_bloom_filter.py -v
 
 Pull requests and pushes to `main` run the same test suite in GitHub Actions (Python 3.11–3.13).
 
+## Profiling
+
+```bash
+python3 profile_bloom_filter.py
+python3 profile_bloom_filter.py --profile   # cProfile top functions
+```
+
+Uses `timeit` to report median and best throughput for `add`, `might_contain` on hits, and `might_contain` on misses. Benchmarks are for local use only (not run in CI).
+
 ## Future work
 
 - Derive `m` and `k` from expected item count and target false-positive rate

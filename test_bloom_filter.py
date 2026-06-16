@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import hashlib
+import subprocess
+import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -78,6 +80,17 @@ class DoubleHashingTests(unittest.TestCase):
         with patch.object(hashlib, "sha256", wraps=hashlib.sha256) as sha256_mock:
             bloom._hash_indices("single-digest")
         self.assertEqual(sha256_mock.call_count, 1)
+
+
+class ProfileBenchmarkTests(unittest.TestCase):
+    def test_profile_script_exits_zero_in_quick_mode(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "profile_bloom_filter.py", "--quick"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, msg=result.stderr or result.stdout)
 
 
 if __name__ == "__main__":
